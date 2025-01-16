@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "module-template"
+name = "cognitive-memory"
 version = "0.1.0"
 description = ""
 authors = ["Richard Blythman <richardblythman@gmail.com>"]

@@ -1,0 +1,34 @@
+[
+    {
+        "name": "kb_deployment_1",
+        "module": {"name": "cognitive_memory"},
+        "node": {"ip": "localhost"},
+        "config": {
+            "storage_type": "db",
+            "path": "cognitive_memory",
+            "options": {
+                "query_col": "title",
+                "answer_col": "text"
+            },
+            "schema": {
+                "memory_id": {"type": "INTEGER", "primary_key": true},
+                "cognitive_step": {"type": "TEXT"},
+                "content": {"type": "TEXT"},
+                "created_at": {"type": "TEXT"},
+                "metadata": {"type": "jsonb"}
+            },
+            "embedder": {
+                "model": "text-embedding-3-small",
+                "chunk_size": 1000,
+                "chunk_overlap": 200,
+                "separators": ["\n\n", "\n", ". ", " ", ""],
+                "embedding_dim": 1536
+            },
+            "retriever": {
+                "type": "vector",
+                "field": "embedding",
+                "k": 5
+            }
+        }
+    }
+]
