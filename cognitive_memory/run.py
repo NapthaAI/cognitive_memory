@@ -122,14 +122,15 @@ async def create(deployment: MemoryDeployment):
     create_table_result = await storage_provider.execute(create_table_request)
 
     logger.info(f"Result: {create_table_result}")
+    return {"status": "success", "message": f"Successfully created {table_name}"}
 
 # Default entrypoint when the module is executed
-def run(module_run: Dict):
+async def run(module_run: Dict):
     module_run = MemoryRunInput(**module_run)
     module_run.inputs = InputSchema(**module_run.inputs)
     cognitive_memory = CognitiveMemory(module_run.deployment)
     method = getattr(cognitive_memory, module_run.inputs.func_name, None)
-    return method(module_run.inputs.func_input_data)
+    return await method(module_run.inputs.func_input_data)
 
 if __name__ == "__main__":
     import asyncio
