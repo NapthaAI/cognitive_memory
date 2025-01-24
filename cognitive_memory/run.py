@@ -22,9 +22,9 @@ class CognitiveMemory():
         self.deployment = deployment
         self.config = self.deployment.config
         self.storage_provider = StorageProvider(self.deployment.node)
-        self.storage_type = self.config.storage_type
-        self.table_name = self.config.path
-        self.schema = self.config.schema
+        self.storage_type = self.config.storage_config.storage_type
+        self.table_name = self.config.storage_config.path
+        self.schema = self.config.storage_config.storage_schema
 
     # TODO: Remove this. In future, the create function should be called by create_module in the same way that run is called by run_module
     async def init(self, *args, **kwargs):
@@ -105,9 +105,9 @@ async def create(deployment: MemoryDeployment):
         deployment: Deployment configuration containing deployment details
     """
     storage_provider = StorageProvider(deployment.node)
-    storage_type = deployment.config.storage_type
-    table_name = deployment.config.path
-    schema = {"schema": deployment.config.schema}
+    storage_type = deployment.config.storage_config.storage_type
+    table_name = deployment.config.storage_config.path
+    schema = {"schema": deployment.config.storage_config.storage_schema}
 
     logger.info(f"Creating {storage_type} at {table_name} with schema {schema}")
 
@@ -147,14 +147,14 @@ if __name__ == "__main__":
             "func_name": "init",
             "func_input_data": None,
         },
-        "add_data": {
+        "store_cognitive_item": {
             "func_name": "store_cognitive_item",
             "func_input_data": {
                 "cognitive_step": "reflection",
                 "content": "I am reflecting."
             },
         },
-        "run_query": {
+        "get_cognitive_items": {
             "func_name": "get_cognitive_items",
             "func_input_data": {"cognitive_step": "reflection"},
         },
@@ -162,14 +162,14 @@ if __name__ == "__main__":
             "func_name": "delete_table",
             "func_input_data": {"table_name": "cognitive_memory"},
         },
-        "delete_row": {
+        "delete_cognitive_items": {
             "func_name": "delete_cognitive_items",
             "func_input_data": {"condition": {"cognitive_step": "reflection"}},
         },
     }
 
     module_run = {
-        "inputs": inputs_dict["init"],
+        "inputs": inputs_dict["delete_table"],
         "deployment": deployment,
         "consumer_id": naptha.user.id,
         "signature": sign_consumer_id(naptha.user.id, os.getenv("PRIVATE_KEY"))

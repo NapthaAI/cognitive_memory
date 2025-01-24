@@ -1,0 +1,13 @@
+[
+    {
+        "config_name": "embedding_model_1",
+        "client": "openai",
+        "model": "text-embedding-3-small",
+        "options": {
+            "chunk_size": 1000,
+            "chunk_overlap": 200,
+            "separators": ["\n\n", "\n", ". ", " ", ""],
+            "embedding_dim": 1536
+        }
+    }
+]
