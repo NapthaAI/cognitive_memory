@@ -5,7 +5,7 @@ import random
 from typing import Dict, Any
 from naptha_sdk.schemas import MemoryDeployment, MemoryRunInput
 from naptha_sdk.storage.schemas import CreateStorageRequest, ReadStorageRequest, DeleteStorageRequest, ListStorageRequest, DatabaseReadOptions
-from naptha_sdk.storage.storage_provider import StorageProvider
+from naptha_sdk.storage.storage_client import StorageClient
 from naptha_sdk.user import sign_consumer_id
 from naptha_sdk.utils import get_logger
 from cognitive_memory.schemas import InputSchema
@@ -21,7 +21,7 @@ class CognitiveMemory():
     def __init__(self, deployment: Dict[str, Any]):
         self.deployment = deployment
         self.config = self.deployment.config
-        self.storage_provider = StorageProvider(self.deployment.node)
+        self.storage_client = StorageClient(self.deployment.node)
         self.storage_type = self.config.storage_config.storage_type
         self.table_name = self.config.storage_config.path
         self.schema = self.config.storage_config.storage_schema
@@ -45,7 +45,7 @@ class CognitiveMemory():
         if 'created_at' not in input_data:
             input_data['created_at'] =  str(datetime.now(timezone.utc))
 
-        create_row_result = await self.storage_provider.execute(CreateStorageRequest(
+        create_row_result = await self.storage_client.execute(CreateStorageRequest(
             storage_type=self.storage_type,
             path=self.table_name,
             data={"data": input_data}
@@ -67,7 +67,7 @@ class CognitiveMemory():
             options={"conditions": [input_data]}
         )
 
-        read_result = await self.storage_provider.execute(read_storage_request)
+        read_result = await self.storage_client.execute(read_storage_request)
         print(f"Query results: {read_result}")
         return {"status": "success", "message": f"Query results: {read_result}"}
 
@@ -83,7 +83,7 @@ class CognitiveMemory():
             options={"condition": input_data['condition']}
         )
 
-        delete_row_result = await self.storage_provider.execute(delete_row_request)
+        delete_row_result = await self.storage_client.execute(delete_row_request)
         logger.info(f"Delete row result: {delete_row_result}")
         return {"status": "success", "message": f"Delete row result: {delete_row_result}"}
 
@@ -92,7 +92,7 @@ class CognitiveMemory():
             storage_type=self.storage_type,
             path=input_data['table_name'],
         )
-        delete_table_result = await self.storage_provider.execute(delete_table_request)
+        delete_table_result = await self.storage_client.execute(delete_table_request)
         logger.info(f"Delete table result: {delete_table_result}")
         return {"status": "success", "message": f"Delete table result: {delete_table_result}"}
 
@@ -104,7 +104,7 @@ async def create(deployment: MemoryDeployment):
     Args:
         deployment: Deployment configuration containing deployment details
     """
-    storage_provider = StorageProvider(deployment.node)
+    storage_client = StorageClient(deployment.node)
     storage_type = deployment.config.storage_config.storage_type
     table_name = deployment.config.storage_config.path
     schema = {"schema": deployment.config.storage_config.storage_schema}
@@ -119,7 +119,7 @@ async def create(deployment: MemoryDeployment):
     )
 
     # Create a table
-    create_table_result = await storage_provider.execute(create_table_request)
+    create_table_result = await storage_client.execute(create_table_request)
 
     logger.info(f"Result: {create_table_result}")
     return {"status": "success", "message": f"Successfully created {table_name}"}
